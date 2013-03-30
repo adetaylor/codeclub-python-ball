@@ -20,8 +20,8 @@ class Ball(pygame.sprite.Sprite):
         self.image = small_ball_image
         self.rect = self.image.get_rect(midbottom=screen_rect.midbottom)
 
-    def move(self, direction):
-        self.rect.move_ip(direction*5, 0)
+    def move(self, direction, directionUD):
+        self.rect.move_ip(direction*5, directionUD*5)
         self.rect = self.rect.clamp(screen_rect)
 
 background = pygame.Surface(screen_rect.size)
@@ -38,8 +38,9 @@ while running:
             running = False
     keys_pressed = pygame.key.get_pressed()
     direction = keys_pressed[K_RIGHT] - keys_pressed[K_LEFT]
+    directionUD = keys_pressed[K_DOWN] - keys_pressed[K_UP]
 
-    ball.move(direction);
+    ball.move(direction, directionUD);
 
     all.clear(screen, background)
 
