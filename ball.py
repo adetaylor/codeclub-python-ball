@@ -26,8 +26,10 @@ class Ball(pygame.sprite.Sprite):
 
 background = pygame.Surface(screen_rect.size)
 ball = Ball()
+ball2 = Ball()
 all = pygame.sprite.RenderUpdates()
 all.add(ball)
+all.add(ball2)
 
 running = True
 
@@ -41,6 +43,10 @@ while running:
     directionUD = keys_pressed[K_DOWN] - keys_pressed[K_UP]
 
     ball.move(direction, directionUD);
+
+    direction2 = keys_pressed[K_l] - keys_pressed[K_j]
+    direction2UD = keys_pressed[K_k] - keys_pressed[K_i]
+    ball2.move(direction2, direction2UD);
 
     all.clear(screen, background)
 
