@@ -10,19 +10,12 @@ pygame.init()
 
 screen_rect = Rect(0, 0, 640, 480)
 screen = pygame.display.set_mode(screen_rect.size)
-ball_image = codeclub.load_image('ball.png')
-small_ball_image = pygame.transform.scale(ball_image, (50, 50))
 
-class Ball(pygame.sprite.Sprite):
+class Ball(codeclub.CodeClubSprite):
 
-    def __init__(self):
-        super(Ball, self).__init__()
-        self.image = small_ball_image
-        self.rect = self.image.get_rect(midbottom=screen_rect.midbottom)
-
-    def move(self, direction, directionUD):
-        self.rect.move_ip(direction*5, directionUD*5)
-        self.rect = self.rect.clamp(screen_rect)
+	def __init__(self):
+		super(Ball, self).__init__()
+		self.set_costume('ball.png', 50)
 
 background = pygame.Surface(screen_rect.size)
 ball = Ball()
@@ -35,20 +28,36 @@ running = True
 
 while running:
 
-    for event in pygame.event.get():
-        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-            running = False
-    keys_pressed = pygame.key.get_pressed()
-    direction = keys_pressed[K_RIGHT] - keys_pressed[K_LEFT]
-    directionUD = keys_pressed[K_DOWN] - keys_pressed[K_UP]
+	for event in pygame.event.get():
+		if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+			running = False
+	keys_pressed = pygame.key.get_pressed()
+	if keys_pressed[K_RIGHT]:
+		ball.point_in_direction(180)
+		ball.move(5)
+	if keys_pressed[K_LEFT]:
+		ball.point_in_direction(0)
+		ball.move(5)
+	if keys_pressed[K_UP]:
+		ball.point_in_direction(90)
+		ball.move(5)
+	if keys_pressed[K_DOWN]:
+		ball.point_in_direction(270)
+		ball.move(5)
+	if keys_pressed[K_l]:
+		ball2.point_in_direction(180)
+		ball2.move(5)
+	if keys_pressed[K_h]:
+		ball2.point_in_direction(0)
+		ball2.move(5)
+	if keys_pressed[K_k]:
+		ball2.point_in_direction(90)
+		ball2.move(5)
+	if keys_pressed[K_j]:
+		ball2.point_in_direction(270)
+		ball2.move(5)
 
-    ball.move(direction, directionUD);
+	all.clear(screen, background)
 
-    direction2 = keys_pressed[K_l] - keys_pressed[K_j]
-    direction2UD = keys_pressed[K_k] - keys_pressed[K_i]
-    ball2.move(direction2, direction2UD);
-
-    all.clear(screen, background)
-
-    dirty = all.draw(screen)
-    pygame.display.update(dirty)
+	dirty = all.draw(screen)
+	pygame.display.update(dirty)
