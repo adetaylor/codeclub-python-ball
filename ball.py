@@ -17,10 +17,6 @@ class Ball(codeclub.CodeClubSprite):
 		super(Ball, self).__init__()
 		self.set_costume('ball.png', 50)
 
-	def move_in_direction(self, direction):
-		self.rect.move_ip(direction*5, 0)
-		self.rect = self.rect.clamp(screen_rect)
-
 background = pygame.Surface(screen_rect.size)
 ball = Ball()
 all = pygame.sprite.RenderUpdates()
@@ -34,9 +30,12 @@ while running:
 		if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
 			running = False
 	keys_pressed = pygame.key.get_pressed()
-	direction = keys_pressed[K_RIGHT] - keys_pressed[K_LEFT]
-
-	ball.move_in_direction(direction);
+	if keys_pressed[K_RIGHT]:
+		ball.point_in_direction(180)
+		ball.move(5)
+	if keys_pressed[K_LEFT]:
+		ball.point_in_direction(0)
+		ball.move(5)
 
 	all.clear(screen, background)
 
