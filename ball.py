@@ -4,13 +4,13 @@
 
 import pygame
 from pygame.locals import *
-import codeclub_pygame_handy_functions
+import codeclub
 
 pygame.init()
 
 screen_rect = Rect(0, 0, 640, 480)
 screen = pygame.display.set_mode(screen_rect.size)
-ball_image = codeclub_pygame_handy_functions.load_image_from_data_directory('ball.png')
+ball_image = codeclub.load_image('ball.png')
 small_ball_image = pygame.transform.scale(ball_image, (50, 50))
 
 class Ball(pygame.sprite.Sprite):
