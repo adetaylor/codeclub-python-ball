@@ -10,17 +10,14 @@ pygame.init()
 
 screen_rect = Rect(0, 0, 640, 480)
 screen = pygame.display.set_mode(screen_rect.size)
-ball_image = codeclub.load_image('ball.png')
-small_ball_image = pygame.transform.scale(ball_image, (50, 50))
 
-class Ball(pygame.sprite.Sprite):
+class Ball(codeclub.CodeClubSprite):
 
     def __init__(self):
         super(Ball, self).__init__()
-        self.image = small_ball_image
-        self.rect = self.image.get_rect(midbottom=screen_rect.midbottom)
+	self.set_costume('ball.png', 50)
 
-    def move(self, direction):
+    def move_in_direction(self, direction):
         self.rect.move_ip(direction*5, 0)
         self.rect = self.rect.clamp(screen_rect)
 
@@ -39,7 +36,7 @@ while running:
     keys_pressed = pygame.key.get_pressed()
     direction = keys_pressed[K_RIGHT] - keys_pressed[K_LEFT]
 
-    ball.move(direction);
+    ball.move_in_direction(direction);
 
     all.clear(screen, background)
 
