@@ -24,9 +24,9 @@ def load_image(name, colorkey=None):
 	fullname = os.path.join(main_dir, 'data', name)
 	try:
 		image = pygame.image.load(fullname)
-	except pygame.error, message:
-		print 'Cannot load image:', fullname
-		raise SystemExit, message
+	except pygame.error as message:
+		print('Cannot load image:', fullname)
+		raise SystemExit(message)
 	image = image.convert_alpha()
 	if colorkey is not None:
 		if colorkey is -1:
@@ -53,9 +53,9 @@ def load_sound(name):
 	fullname = os.path.join(main_dir, 'data', name)
 	try:
 		sound = pygame.mixer.Sound(fullname)
-	except pygame.error, message:
-		print 'Cannot load sound:', fullname
-		raise SystemExit, message
+	except pygame.error as message:
+		print('Cannot load sound:', fullname)
+		raise SystemExit(message)
 	return sound
 
 def start_music(file):
@@ -65,28 +65,55 @@ def start_music(file):
 		pygame.mixer.music.load(music)
 		pygame.mixer.music.play(-1)
 
+def aspect_scale(img,bx,by):
+	""" Scales 'img' to fit into box bx/by.
+	This method will retain the original image's aspect ratio """
+	# Thanks to Frank Raiser (crashchaos at gmx.net)
+	ix,iy = img.get_size()
+	if ix > iy:
+		# fit to width
+		scale_factor = bx/float(ix)
+		sy = scale_factor * iy
+		if sy > by:
+			scale_factor = by/float(iy)
+			sx = scale_factor * ix
+			sy = by
+		else:
+			sx = bx
+	else:
+		# fit to height
+		scale_factor = by/float(iy)
+		sx = scale_factor * ix
+		if sx > bx:
+			scale_factor = bx/float(ix)
+			sx = bx
+			sy = scale_factor * iy
+		else:
+			sy = by
+	return pygame.transform.smoothscale(img, (int(sx),int(sy)))
+
 #######################################################################################
 # A sprite which knows how to do more stuff like a Scratch sprite
 #######################################################################################
 
 class CodeClubSprite(pygame.sprite.Sprite):
-	def __init__(self, x_pos = 100.0, y_pos = 100.0, speed = 4):
+	def __init__(self, x_pos = 100.0, y_pos = 100.0):
 		pygame.sprite.Sprite.__init__(self) #call Sprite intializer
 		self.direction = 0;
 		screen = pygame.display.get_surface()
 		self.area = screen.get_rect()
 		self.rect = pygame.Rect(x_pos-5, y_pos-5, 10, 10)
-		self.speed = speed
 		self.freeze_time = 0
 		self.speak_time = 0
 		self.speak_pos = (0,0)
 		self.speak_font = pygame.font.Font(None, 36)
 		self.speak_text = self.speak_font.render("Hello!!!", 1, (10, 10, 10))
+		self.x_diff = self.y_diff = 0
 
 	def set_costume(self, name, size):
 		self.image = load_image(name, -1)
 		self.rect = self.image.get_rect()
-		self.image = self.orig_image = pygame.transform.scale(self.image, (size, size))
+		self.image = self.orig_image = aspect_scale(self.image, (size, size))
 		self.rect.width = self.rect.height = size
 
 	def turn_right(self, degrees = 10):
@@ -102,8 +129,8 @@ class CodeClubSprite(pygame.sprite.Sprite):
 		self.adjust_image_based_on_direction()
 
 	def point_towards(self, target):
-		x_diff = target.rect.left - self.rect.left
-		y_diff = target.rect.top - self.rect.top
+		x_diff = target.rect.center[0] - self.rect.center[0]
+		y_diff = target.rect.center[1] - self.rect.center[1]
         
 		if (x_diff == 0):
 			if (y_diff <= 0):
@@ -131,11 +158,19 @@ class CodeClubSprite(pygame.sprite.Sprite):
 
 	def get_position(self):
 		return self.rect.center
-		    
+
+	def get_direction(self):
+		return self.direction
+
 	def move(self, distance = 1):
-		x_diff = -cos(radians(self.direction)) * distance
-		y_diff = -sin(radians(self.direction)) * distance
-		self.rect.center = (self.rect.center[0] + x_diff, self.rect.center[1] + y_diff)
+		# PyGame co-ordinates are integers yet we want to be able
+		# to move <1 unit, so we keep track of fractional movements
+		# to do next time.
+		self.x_diff -= cos(radians(self.direction)) * distance
+		self.y_diff -= sin(radians(self.direction)) * distance
+		self.rect.center = (self.rect.center[0] + int(self.x_diff), self.rect.center[1] + int(self.y_diff))
+		self.x_diff -= int(self.x_diff)
+		self.y_diff -= int(self.y_diff)
 	
 	def move_unless_frozen(self, distance):
 		"Moves in current direction"
@@ -167,8 +202,8 @@ class CodeClubSprite(pygame.sprite.Sprite):
 		pass
 
 class CodeClubLeftRightFacingSprite(CodeClubSprite):
-	def __init__(self, x_pos = 100.0, y_pos = 100.0, speed = 4):
-		CodeClubSprite.__init__(self)
+	def __init__(self, x_pos = 100.0, y_pos = 100.0):
+		CodeClubSprite.__init__(self, x_pos, y_pos)
 		self.facing_right = True
 
 	def adjust_image_based_on_direction(self):
@@ -181,8 +216,8 @@ class CodeClubLeftRightFacingSprite(CodeClubSprite):
 			self.image = self.orig_image
 
 class CodeClubFreeRotatingSprite(CodeClubSprite):
-	def __init__(self, x_pos = 100.0, y_pos = 100.0, speed = 4):
-		Sprite.__init__(self)
+	def __init__(self, x_pos = 100.0, y_pos = 100.0):
+		CodeClubSprite.__init__(self, x_pos, y_pos)
 
 	def adjust_image_based_on_direction(self):
-		self.image = pygame.transform.rotate(self.orig_image, self.direction)
+		self.image = pygame.transform.rotate(self.orig_image, -self.direction)
